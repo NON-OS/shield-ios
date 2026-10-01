@@ -1,0 +1,54 @@
+# The shell's checks: it builds against the pinned core, its own tests pass,
+# its Swift is lint clean, and the declarations an upload is judged on hold.
+#
+# One workflow rather than two, because a macOS minute costs ten times a Linux
+# one on a private repository, and the core, which is most of the time, comes
+# from cache when its commit has not moved. It runs on pull requests and on
+# demand, not on every push.
+name: check
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      # The device slice and the one simulator an Apple silicon runner tests on.
+      - uses: ./.github/actions/core
+        with:
+          slices: arm-sim
+          ssh-key: ${{ secrets.CORE_DEPLOY_KEY }}
+
+      - name: Generate the project
+        run: |
+          brew install xcodegen swiftlint
+          xcodegen generate
+
+      # The destination is named rather than left to the default, so a runner
+      # image with a different set of simulators fails on the name instead of
+      # silently testing on something else.
+      - name: Build and test
+        run: |
+          xcodebuild test -project NoxShield.xcodeproj -scheme NoxShield \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            | xcpretty && exit ${PIPESTATUS[0]}
+
+      # A suite that passes with no tests in it passes for the wrong reason.
+      - name: The suite is not empty
+        run: |
+          count=$(grep -rc "func test" NoxShieldTests/*.swift | awk -F: '{s+=$2} END {print s}')
+          echo "$count test functions"
+          if [ "$count" -lt 20 ]; then
+            echo "the suite has shrunk, which is either a deletion or a move" >&2
+            exit 1
+          fi
+
+      - name: Lint the Swift
+        run: scripts/lint.sh
+
+      - name: The declarations an upload is judged on
+        run: scripts/check-privacy.sh

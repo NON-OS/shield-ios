@@ -1,0 +1,51 @@
+# The Rust core for this shell, built once per pinned commit and cached.
+#
+# macOS minutes cost ten times Linux's on a private repository, and the core
+# is most of every run: the Tor stack and the prover, from source. The built
+# framework, the generated bindings and the generated provenance are cached
+# under the pinned commit, the slices and the scripts that make them, so a run
+# whose core has not moved skips Rust entirely.
+name: core
+description: The pinned core as an xcframework and Swift bindings, from cache when it has not moved.
+inputs:
+  slices:
+    description: "device, arm-sim or all"
+    required: true
+  ssh-key:
+    description: The read-only deploy key for the core repository.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: The core this build is pinned to
+      id: pin
+      shell: bash
+      run: echo "sha=$(tr -d '[:space:]' < core.lock)" >> "$GITHUB_OUTPUT"
+
+    - name: The built core, if this commit was built before
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          build/NoxShieldCore.xcframework
+          NoxShield/Generated
+          NoxShield/Provenance
+        key: core-${{ steps.pin.outputs.sha }}-${{ inputs.slices }}-${{ hashFiles('scripts/build-core.sh', 'scripts/licences.py', 'licenses/**') }}
+
+    - uses: actions/checkout@v4
+      if: steps.cache.outputs.cache-hit != 'true'
+      with:
+        repository: NON-OS/shield-core
+        ref: ${{ steps.pin.outputs.sha }}
+        ssh-key: ${{ inputs.ssh-key }}
+        path: shield-core
+
+    - name: Build the core and generate the bindings
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        NOX_SHIELD_CORE: ${{ github.workspace }}/shield-core
+        NOX_SLICES: ${{ inputs.slices }}
+      run: |
+        (cd shield-core && rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios)
+        scripts/build-core.sh

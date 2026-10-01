@@ -1,0 +1,55 @@
+# The app built for the iOS Simulator, uploaded as an artifact.
+#
+# For looking at the app on a Mac without building it there: download the
+# artifact, unzip it, and install it into any booted simulator with
+# `xcrun simctl install booted NONOS.app`. It is built for both simulator
+# architectures, so it runs on an Intel Mac as well as Apple silicon. It is
+# unsigned, which a simulator accepts and a phone does not.
+name: simulator
+
+# macOS runners bill at ten times the Linux rate on a private repository, so
+# this runs on demand only.
+on:
+  workflow_dispatch:
+
+jobs:
+  app:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      # The exact core commit this shell was built and tested against, from
+      # core.lock, never whatever the core's default branch holds today.
+      - uses: ./.github/actions/core
+        with:
+          slices: all
+          ssh-key: ${{ secrets.CORE_DEPLOY_KEY }}
+
+      - name: Generate the project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build for the simulator, both architectures
+        run: |
+          xcodebuild -project NoxShield.xcodeproj -scheme NoxShield \
+            -configuration Debug -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/sim \
+            ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build | xcpretty && exit ${PIPESTATUS[0]}
+
+      - name: Package it
+        run: |
+          app=$(find build/sim/Build/Products -name "NoxShield.app" -maxdepth 2 | head -1)
+          lipo -info "$app/NoxShield"
+          cp -R "$app" NONOS.app
+          ditto -c -k --keepParent NONOS.app NONOS-simulator.zip
+          shasum -a 256 NONOS-simulator.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NONOS-simulator
+          path: NONOS-simulator.zip
+          retention-days: 14

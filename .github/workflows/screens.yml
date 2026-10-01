@@ -1,0 +1,74 @@
+# Every screen of the app on an iOS 26 simulator, as screenshots.
+#
+# The simulators for iOS 26 run only on Apple silicon, so this is where the
+# app is looked at on the current iOS. A UI test walks a new holder's path and
+# keeps a screenshot of each screen; they come back as an artifact.
+name: screens
+
+# macOS runners bill at ten times the Linux rate on a private repository, so
+# this runs on demand only.
+on:
+  workflow_dispatch:
+
+jobs:
+  shots:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      # The newest Xcode 26 on the image, for the iOS 26 simulators.
+      - name: Xcode 26
+        run: |
+          xcode=$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)
+          echo "using $xcode"
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+
+      - uses: ./.github/actions/core
+        with:
+          slices: arm-sim
+          ssh-key: ${{ secrets.CORE_DEPLOY_KEY }}
+
+      - name: Generate the project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      # An iPhone on the newest iOS 26 runtime, booted, with Face ID enrolled.
+      - name: A booted iOS 26 iPhone
+        id: sim
+        run: |
+          udid=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          d = json.load(sys.stdin)["devices"]
+          runtimes = sorted((r for r in d if "iOS-26" in r), reverse=True)
+          phones = [x for r in runtimes for x in d[r] if x["name"].startswith("iPhone") and "Pro" in x["name"]]
+          print(phones[0]["udid"])')
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" -b
+          xcrun simctl spawn "$udid" notifyutil -s com.apple.BiometricKit.enrollmentChanged 1
+          xcrun simctl spawn "$udid" notifyutil -p com.apple.BiometricKit.enrollmentChanged
+
+      - name: Walk every screen
+        env:
+          UDID: ${{ steps.sim.outputs.udid }}
+        run: |
+          # A matching face every few seconds, for each Face ID prompt.
+          ( while true; do
+              xcrun simctl spawn "$UDID" notifyutil -p com.apple.BiometricKit_Sim.pearl.match
+              sleep 3
+            done ) &
+          face=$!
+          xcodebuild test -project NoxShield.xcodeproj -scheme Screens \
+            -destination "id=$UDID" -resultBundlePath screens.xcresult | xcpretty || true
+          kill $face
+          mkdir -p screens
+          xcrun xcresulttool export attachments --path screens.xcresult --output-path screens
+          ls screens
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NONOS-screens-ios26
+          path: screens
+          retention-days: 14

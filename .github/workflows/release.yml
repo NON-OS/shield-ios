@@ -1,0 +1,80 @@
+# The app as a file you can put on your own phone.
+#
+# A tag builds the core for the device slice, from cache when its commit was
+# built before, builds the app for real devices,
+# and publishes an unsigned .ipa on the tag's GitHub Release. It is unsigned on
+# purpose: a signature needs a certificate, and a certificate on a CI runner is
+# a key the runner could leak. The phone signs it instead, through SideStore or
+# AltStore with the owner's own Apple ID, so no signing key ever leaves the
+# person who installs the app.
+#
+# The core lives in a private repository. CORE_DEPLOY_KEY is a read-only deploy
+# key on shield-core and nothing else: revoking it there cuts this job off.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ipa:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/core
+        with:
+          slices: device
+          ssh-key: ${{ secrets.CORE_DEPLOY_KEY }}
+
+      - name: Generate the project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      # Built for real iPhones, signing off. The runner holds no certificate.
+      - name: App, unsigned, for devices
+        run: |
+          # The version is the tag this run builds; a run from anything else
+          # is not a release and says so.
+          version="${GITHUB_REF_NAME#v}"
+          case "$version" in
+            [0-9]*.[0-9]*.[0-9]*) ;;
+            *) version="0.0.0" ;;
+          esac
+          xcodebuild -project NoxShield.xcodeproj -scheme NoxShield \
+            -configuration Release -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/dd \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            MARKETING_VERSION="$version" \
+            CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}" \
+            build
+
+      - name: Package the ipa and its hash
+        run: |
+          rm -rf Payload && mkdir Payload
+          cp -R build/dd/Build/Products/Release-iphoneos/NoxShield.app Payload/
+          zip -qry NONOS-${GITHUB_REF_NAME}-unsigned.ipa Payload
+          shasum -a 256 NONOS-${GITHUB_REF_NAME}-unsigned.ipa | tee NONOS-${GITHUB_REF_NAME}-unsigned.ipa.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NONOS-unsigned-ipa
+          path: |
+            NONOS-${GITHUB_REF_NAME}-unsigned.ipa
+            NONOS-${GITHUB_REF_NAME}-unsigned.ipa.sha256
+
+      - name: Publish on the tag's release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            NONOS-${GITHUB_REF_NAME}-unsigned.ipa NONOS-${GITHUB_REF_NAME}-unsigned.ipa.sha256 \
+            --title "NØNOS Wallet for iOS $GITHUB_REF_NAME" \
+            --notes "Unsigned build for sideloading. Install with SideStore or AltStore, which sign it with your own Apple ID; a free Apple ID re-signs every 7 days. docs/04-install.md in the repository takes you through it. Installing under a different Apple ID gives the app a new, empty container: the recovery words are the only way back. Check the file against the .sha256 before installing. The shield runs on the NOX Shield production pool on Sepolia only, and its tokens have no value: a private send is proved on the phone, handed to the lander over Tor and followed to its settlement, or settled from your public account. The public account holds ETH, NOX and USDC on Ethereum and Sepolia, with swaps on Ethereum. Not audited. Core $(cat core.lock)."
