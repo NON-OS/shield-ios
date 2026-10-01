@@ -1,0 +1,267 @@
+1
+00:00:00,000 --> 00:00:05,118
+NØNOS Wallet keeps a private balance on
+Ethereum, and proves every private payment
+
+2
+00:00:05,118 --> 00:00:09,800
+on the phone itself. This is the whole
+path, from the file to a withdrawal.
+
+3
+00:00:10,000 --> 00:00:13,014
+The shield runs on Sepolia, a test
+network.
+
+4
+00:00:13,014 --> 00:00:16,800
+Its tokens have no value, and nothing here
+is audited.
+
+5
+00:00:17,000 --> 00:00:22,800
+The app comes as a file from the release
+page, with its fingerprint beside it.
+
+6
+00:00:23,000 --> 00:00:30,800
+Before installing, check the fingerprint.
+If it doesn't match, stop.
+
+7
+00:00:31,000 --> 00:00:36,215
+SideStore signs the file with your own
+Apple ID.
+
+8
+00:00:36,215 --> 00:00:39,800
+In My Apps, tap plus and pick it.
+
+9
+00:00:40,000 --> 00:00:49,800
+iOS asks for Developer Mode the first
+time. Turn it on, and the phone restarts.
+
+10
+00:00:50,000 --> 00:00:51,552
+Create a wallet.
+
+11
+00:00:51,552 --> 00:00:59,024
+The seed is sealed under a key in the
+Secure Enclave, and that key opens only
+
+12
+00:00:59,024 --> 00:00:59,800
+for you.
+
+13
+00:01:00,000 --> 00:01:02,451
+These are your 24 recovery words.
+
+14
+00:01:02,451 --> 00:01:07,800
+In this recording they're hidden; the app
+hides them from any recording.
+
+15
+00:01:08,000 --> 00:01:14,800
+Write them on paper. Not a photo, not a
+notes app. They are the wallet.
+
+16
+00:01:15,000 --> 00:01:21,800
+Once they're written down, confirm, and
+you're home.
+
+17
+00:01:22,000 --> 00:01:28,272
+Home shows the public account, the same 0x
+address on Sepolia and on Ethereum.
+
+18
+00:01:28,272 --> 00:01:29,800
+We stay on Sepolia.
+
+19
+00:01:30,000 --> 00:01:34,400
+Receive shows that address. Send it a
+little Sepolia ETH for gas.
+
+20
+00:01:34,400 --> 00:01:38,800
+For test NOX, ask in the NØNOS Telegram
+group, with this address.
+
+21
+00:01:39,000 --> 00:01:45,800
+Pull down, and the balances arrive.
+
+22
+00:01:46,000 --> 00:01:53,800
+Shield is the private side. Deposit moves
+NOX from the public account into the pool.
+
+23
+00:01:54,000 --> 00:02:00,607
+Amounts come in standard sizes, so every
+deposit looks like many others.
+
+24
+00:02:00,607 --> 00:02:01,800
+Ten thousand.
+
+25
+00:02:02,000 --> 00:02:08,933
+The review shows the pool fee, a quarter
+of a percent, and what the private note
+
+26
+00:02:08,933 --> 00:02:09,800
+will hold.
+
+27
+00:02:10,000 --> 00:02:17,800
+NOX needs one approval first, for exactly
+this amount. Confirm it.
+
+28
+00:02:18,000 --> 00:02:25,800
+When it's in a block, review the deposit
+itself, and confirm.
+
+29
+00:02:26,000 --> 00:02:32,800
+Shielded. The NOX is now a private note,
+and only this wallet can read it.
+
+30
+00:02:33,000 --> 00:02:39,333
+The meter says when the note can move
+privately: after twenty more notes join
+
+31
+00:02:39,333 --> 00:02:41,800
+the pool, and about six hours.
+
+32
+00:02:42,000 --> 00:02:49,177
+Moving it sooner would let anyone watching
+link this deposit to the next payment, by
+
+33
+00:02:49,177 --> 00:02:50,800
+timing. So we wait.
+
+34
+00:02:51,000 --> 00:02:56,800
+Later, the meter says ready. Send
+privately.
+
+35
+00:02:57,000 --> 00:03:00,537
+The recipient gives you a nox1 address.
+
+36
+00:03:00,537 --> 00:03:04,800
+Here it's a second account of this same
+wallet.
+
+37
+00:03:05,000 --> 00:03:12,800
+A thousand NOX. The fee is the pool's, the
+same for everyone, and it's never typed.
+
+38
+00:03:13,000 --> 00:03:14,500
+Prove and seal.
+
+39
+00:03:14,500 --> 00:03:21,800
+The proof is made here, on the phone, and
+nothing leaves until it's done.
+
+40
+00:03:22,000 --> 00:03:26,800
+It takes a minute or two.
+
+41
+00:03:27,000 --> 00:03:34,800
+The proof goes to the lander over Tor. You
+can follow each step.
+
+42
+00:03:35,000 --> 00:03:41,800
+Published. Scheduled. Settling.
+
+43
+00:03:42,000 --> 00:03:49,800
+Settled. On chain there's no sender, no
+receiver and no amount.
+
+44
+00:03:50,000 --> 00:03:55,844
+If it ever sits unlanded for half an hour,
+ask the lander again, or settle it
+
+45
+00:03:55,844 --> 00:03:58,349
+yourself from the public account.
+
+46
+00:03:58,349 --> 00:04:04,193
+That works without anyone else, but it
+shows your public account next to this
+
+47
+00:04:04,193 --> 00:04:04,800
+payment.
+
+48
+00:04:05,000 --> 00:04:11,800
+The change from that payment waits its own
+turn. When it's ready, Withdraw.
+
+49
+00:04:12,000 --> 00:04:18,353
+A withdrawal is public, so the app fills
+in a fresh address of this wallet, one
+
+50
+00:04:18,353 --> 00:04:19,800
+never used before.
+
+51
+00:04:20,000 --> 00:04:26,800
+A thousand NOX. The fee is half a percent,
+and a network part.
+
+52
+00:04:27,000 --> 00:04:34,800
+Prove and seal again, and follow it to
+settled.
+
+53
+00:04:35,000 --> 00:04:41,800
+The NOX is back in a public account, at an
+address with no past.
+
+54
+00:04:42,000 --> 00:04:48,800
+Lock the wallet from Settings, or just
+leave the app: it locks itself.
+
+55
+00:04:49,000 --> 00:04:55,800
+Your words are the only way back. Keep
+them on paper, and nowhere else.
+
+56
+00:04:56,000 --> 00:04:59,451
+The guides are in the repository's docs.
+
+57
+00:04:59,451 --> 00:05:04,800
+Sepolia only, not audited, and every proof
+made on your phone.
+
