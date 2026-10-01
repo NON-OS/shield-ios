@@ -2,6 +2,9 @@
 
 The iOS app of NØNOS Wallet, a phone wallet for NOX Shield: private transfers on Ethereum, proved on the phone and verified on chain.
 
+To try it, [TESTING.md](TESTING.md) takes you from installing to a private transfer and a
+withdrawal, step by step.
+
 > [!WARNING]
 > The shield runs on Sepolia only, and its tokens have no value. The public account moves real
 > funds on Ethereum mainnet. Nothing is audited: not the app, not the core, not the pool. The

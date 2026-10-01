@@ -77,4 +77,4 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             NONOS-${GITHUB_REF_NAME}-unsigned.ipa NONOS-${GITHUB_REF_NAME}-unsigned.ipa.sha256 \
             --title "NØNOS Wallet for iOS $GITHUB_REF_NAME" \
-            --notes "Unsigned build for sideloading. Install with SideStore or AltStore, which sign it with your own Apple ID; a free Apple ID re-signs every 7 days. docs/04-install.md in the repository takes you through it. Installing under a different Apple ID gives the app a new, empty container: the recovery words are the only way back. Check the file against the .sha256 before installing. The shield runs on the NOX Shield production pool on Sepolia only, and its tokens have no value: a private send is proved on the phone, handed to the lander over Tor and followed to its settlement, or settled from your public account. The public account holds ETH, NOX and USDC on Ethereum and Sepolia, with swaps on Ethereum. Not audited. Core $(cat core.lock)."
+            --notes-file "docs/releases/$GITHUB_REF_NAME.md"
