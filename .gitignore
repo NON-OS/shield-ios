@@ -1,0 +1,26 @@
+# The core's framework and its generated bindings are build outputs, made by
+# scripts/build-core.sh from the core checkout.
+build/
+NoxShield/Generated/
+# The project is generated from project.yml, so it is not committed: a project
+# file drifts from the sources it is supposed to describe.
+NoxShield.xcodeproj/
+NoxShield.xcworkspace/
+DerivedData/
+.swiftpm/
+*.xcuserstate
+xcuserdata/
+# A provisioning profile, a certificate or a built app never lands in a
+# repository.
+*.mobileprovision
+*.p12
+*.cer
+*.ipa
+*.xcarchive
+# No secret ever lands here, so the file that usually carries one cannot.
+.env
+.env.*
+result
+result-*
+.DS_Store
+._*

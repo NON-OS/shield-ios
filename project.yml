@@ -1,0 +1,116 @@
+# The Xcode project is generated, not committed. A committed pbxproj drifts, and
+# a build nobody can reproduce is not a build anybody can audit.
+# Generate it with: xcodegen generate
+name: NoxShield
+options:
+  bundleIdPrefix: systems.nonos
+  # The floor is a prover decision, not a fashion one. A client proof is
+  # almost all Poseidon over a 64-bit field, so it wants a phone with the
+  # arithmetic and the memory to carry it, and the devices that cannot run this
+  # release are the ones that would take minutes rather than about a minute.
+  # They are also the devices Apple no longer sends security fixes to, which is
+  # the wrong place to hold a seed. It is the same decision as dropping 32-bit
+  # ARM on Android, taken for the same reason.
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    SWIFT_STRICT_CONCURRENCY: targeted
+    SWIFT_TREAT_WARNINGS_AS_ERRORS: YES
+    GCC_TREAT_WARNINGS_AS_ERRORS: YES
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    DEAD_CODE_STRIPPING: YES
+    ENABLE_BITCODE: NO
+    OTHER_LDFLAGS: -ObjC
+
+targets:
+  NoxShield:
+    type: application
+    platform: iOS
+    sources:
+      - path: NoxShield
+    # The bundled faces and the mark. The fonts are registered in Info.plist
+    # under UIAppFonts; the mark is a template asset with its vector data
+    # preserved, so a tint decides its colour.
+    resources:
+      - path: NoxShield/Fonts
+      - path: NoxShield/Assets.xcassets
+      - path: NoxShield/PrivacyInfo.xcprivacy
+      # Which core the build used, written by scripts/build-core.sh. A version
+      # nobody types is a version that cannot go stale.
+      - path: NoxShield/Provenance
+    dependencies:
+      # The Rust core, built by scripts/build-core.sh before the project is
+      # generated. It is a static xcframework: no dynamic loading, nothing
+      # fetched at runtime.
+      - framework: build/NoxShieldCore.xcframework
+        embed: false
+    settings:
+      base:
+        INFOPLIST_FILE: NoxShield/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: systems.nonos.shield
+        CODE_SIGN_ENTITLEMENTS: NoxShield/NoxShield.entitlements
+        SWIFT_OBJC_BRIDGING_HEADER: ""
+        CODE_SIGN_STYLE: Automatic
+        SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
+        # The release workflow sets both from the tag it builds. A build from
+        # anything else says it is not a release.
+        MARKETING_VERSION: "0.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+
+  # The shell's own decisions, asserted off the device. What this target tests
+  # is what the shell decides on its own: the sentence a core failure becomes,
+  # how a long value is broken into runs, and how an onion is cut down to a
+  # fact row. Everything else here belongs to the core and is tested there.
+  NoxShieldTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: NoxShieldTests
+    dependencies:
+      - target: NoxShield
+    settings:
+      base:
+        # The bundle is generated rather than kept as a file: a test bundle has
+        # no identity of its own to declare, and a plist in the repository for
+        # it would be one more file nobody reads.
+        GENERATE_INFOPLIST_FILE: YES
+
+  # Walks every screen on a simulator and keeps a screenshot of each. Run by
+  # the screens workflow, not by the unit test run.
+  NoxShieldUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: NoxShieldUITests
+    dependencies:
+      - target: NoxShield
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+
+schemes:
+  Screens:
+    build:
+      targets:
+        NoxShield: all
+        NoxShieldUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - NoxShieldUITests
+  NoxShield:
+    build:
+      targets:
+        NoxShield: all
+        NoxShieldTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - NoxShieldTests
