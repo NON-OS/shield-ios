@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+      Empty, and that is the statement: no iCloud, no keychain sharing, no app
+      groups. The vault stays in this app's container, sealed under a key
+      inside the Secure Enclave, and there is nowhere for it to sync to.
+
+      An entitlement named here has to be authorised by the provisioning
+      profile that signs the build, even when it grants nothing. Declaring an
+      empty iCloud array therefore asked for a capability the app does not use
+      and that a personal team cannot sign, which would have failed the first
+      install on a device. The absence of a key is what refusing a capability
+      looks like.
+    -->
+
+    <!--
+      The app's own keychain group, and nothing else's. This is not a
+      capability that shares anything: the value expands to this app's
+      identifier, which is the group it would get anyway from the profile that
+      signs a build for a device.
+
+      It is here because without it a build with no team has no group at all,
+      and every keychain write fails with a missing entitlement. That is what
+      refused to create a wallet on the simulator: not the Enclave, not the
+      passcode, an app that had never been signed.
+    -->
+    <key>keychain-access-groups</key>
+    <array>
+        <string>$(AppIdentifierPrefix)$(CFBundleIdentifier)</string>
+    </array>
+</dict>
+</plist>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+      The keys a bundle is identified by. Xcode injects these only for a
+      generated plist, so a target with its own file has to carry them or the
+      build produces an app nothing can install: the first attempt failed with
+      a missing bundle id after compiling and linking cleanly. The values come
+      from the build settings rather than being written twice.
+    -->
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+    <key>CFBundlePackageType</key>
+    <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>$(DEVELOPMENT_LANGUAGE)</string>
+
+    <key>CFBundleDisplayName</key>
+    <string>NØNOS</string>
+    <key>CFBundleShortVersionString</key>
+    <string>$(MARKETING_VERSION)</string>
+    <key>CFBundleVersion</key>
+    <string>$(CURRENT_PROJECT_VERSION)</string>
+    <key>UILaunchScreen</key>
+    <dict>
+        <key>UIColorName</key>
+        <string>LaunchBackground</string>
+    </dict>
+    <!--
+      Face ID opens the sealed seed and confirms every send. Without this
+      sentence iOS ends the app the first time it asks for Face ID.
+    -->
+    <key>NSFaceIDUsageDescription</key>
+    <string>Face ID opens your wallet and confirms each send.</string>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+    <!--
+      App Transport Security is left at its default deny. The wallet does not
+      use the URL loading system at all: it reaches a SOCKS5 proxy on loopback
+      through the core's own socket, and nothing else.
+    -->
+    <!--
+      The app carries its own cryptography: ChaCha20-Poly1305, X25519, BLAKE3,
+      Poseidon and a STARK prover. That is not the platform TLS exemption, so
+      this says true and the exemption is claimed the right way, on the
+      publicly available source code ground, because every line of it is
+      published under AGPL. Declaring false here would be a false statement on
+      an upload form.
+    -->
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <true/>
+    <key>ITSEncryptionExportComplianceCode</key>
+    <string></string>
+    <!--
+      The brand's two faces, bundled rather than substituted, so a screenshot
+      from either phone looks like the same product.
+    -->
+    <key>UIAppFonts</key>
+    <array>
+        <string>Geist-Regular.ttf</string>
+        <string>Geist-Medium.ttf</string>
+        <string>Geist-SemiBold.ttf</string>
+        <string>JetBrainsMono-Regular.ttf</string>
+    </array>
+</dict>
+</plist>
